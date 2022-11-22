@@ -3,6 +3,7 @@
 basename="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 mPWD=$PWD
 
+
 log() {
     local string
     TIME_STAMP=$(date "+%F-%H-%M-%S")
