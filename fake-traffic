@@ -144,13 +144,11 @@ install_script() {
 
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script installed successfully, you can run again without sudo"
-            exit 0
         fi
     else
         if diff "$0" /bin/"$basename" &> /dev/null; then
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
-                exit 0
             fi
         else
             cp "$0" /usr/local/bin/
@@ -159,7 +157,6 @@ install_script() {
 
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script updated successfully., you can run again without sudo"
-                exit 0
             fi
         fi
     fi
