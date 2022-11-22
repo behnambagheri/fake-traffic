@@ -160,6 +160,7 @@ install_script() {
 }
 
 update(){
+    permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
     if cmp -s "$0" /tmp/"$0"; then
         if [ -e /bin/"$0" ]; then
