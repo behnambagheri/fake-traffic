@@ -99,7 +99,7 @@ install_dependencies() {
 
     if ! command -v librespeed-cli &> /dev/null; then
         permissions
-        mPWD=$PWD
+#        mPWD=$PWD
         cd /tmp/ || exit
         if [ -d speedtest-cli ]; then
             mv speedtest-cli speedtest-cli-bak
@@ -138,7 +138,9 @@ install_script() {
 
     if ! command -v "$basename" &> /dev/null; then
         permissions
+        echo "\$0: $0"
         cp "$0" /usr/local/bin/
+        echo "again"
         ln -s /usr/local/bin/"$basename" /bin/
         chmod +x /usr/local/bin/"$basename"
 
