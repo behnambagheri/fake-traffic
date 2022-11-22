@@ -100,6 +100,7 @@ install_dependencies() {
         if [ -d speedtest-cli ]; then
             mv speedtest-cli speedtest-cli-bak
         fi
+        local build
         if git clone https://github.com/librespeed/speedtest-cli; then
             cd speedtest-cli || exit
             build=$(./build.sh)
