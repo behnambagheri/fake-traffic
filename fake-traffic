@@ -1,9 +1,8 @@
 #!/bin/bash
 
-TIME_STAMP=$(date "+%F-%H-%M-%S")
-
 log() {
     local string
+    TIME_STAMP=$(date "+%F-%H-%M-%S")
     string="$*"
     echo -e "$TIME_STAMP - $string"
 }
