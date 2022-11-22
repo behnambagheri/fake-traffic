@@ -143,7 +143,7 @@ install_script() {
             exit 0
         fi
     else
-        if diff "$basename" /bin/"$basename"; then
+        if diff "$basename" /bin/"$basename" &> /dev/null; then
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
             fi
@@ -163,7 +163,7 @@ update(){
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
 
-    if diff "$basename" /tmp/"$basename"; then
+    if diff "$basename" /tmp/"$basename" &> /dev/null; then
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script already installed., you can run again without sudo"
             exit 0
