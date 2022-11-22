@@ -224,13 +224,15 @@ case $1 in
     --no-sleep)
         fun "$1"
         ;;
-    *)
-        echo -e "default in case"
+    "")
         detect_os
         os_version
         install_dependencies
         install_script
         fun
+        ;;
+    *)
+        echo -e "default in case"
         ;;
 
 esac
