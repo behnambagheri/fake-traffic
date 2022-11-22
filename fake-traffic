@@ -142,7 +142,7 @@ install_script() {
             exit 0
         fi
     else
-        if diff "$basename" /bin/"$basename"; then
+        if cmp -s "$basename" /bin/"$basename"; then
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
                 exit 0
@@ -163,7 +163,8 @@ install_script() {
 update(){
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
-    if diff "$basename" /tmp/"$basename"; then
+
+    if cmp -s "$basename" /tmp/"$basename"; then
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script already installed., you can run again without sudo"
             exit 0
@@ -241,5 +242,3 @@ fun "$1"
 
 echo -e "\n$TIME_STAMP - ===========     END     ==========="
 echo -e "\n#########################################################\n"
-
-
