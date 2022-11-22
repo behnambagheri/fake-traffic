@@ -8,14 +8,14 @@ fake-traffic [road warrior](http://en.wikipedia.org/wiki/Road_warrior_%28computi
 
 ---
 ### Facilities
-**Generating asymmetrical traffic data and prevention of bandwidth limitations and server filtering.**
+***Generating asymmetrical traffic data and prevention of bandwidth limitations and server filtering.***
 
 ---
 
 ### Installation
 Run the script as root until the installation is complete, after that use it with normal privileges:
 
-`wget short.platonic.ir/ft -O fake-traffic && bash fake-traffic`
+`curl -L short.platonic.ir/ft -o fake-traffic && bash fake-traffic`
 
 ---
 
