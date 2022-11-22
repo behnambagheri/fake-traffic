@@ -25,114 +25,158 @@ permissions() {
 log "===========    START    ===========\n"
 
 
-
-# Detect OS
-# $os_version variables aren't always in use, but are kept here for convenience
-if grep -qs "ubuntu" /etc/os-release; then
-	os="ubuntu"
-	os_version=$(grep 'VERSION_ID' /etc/os-release | cut -d '"' -f 2 | tr -d '.')
-elif [[ -e /etc/debian_version ]]; then
-	os="debian"
-	os_version=$(grep -oE '[0-9]+' /etc/debian_version | head -1)
-elif [[ -e /etc/almalinux-release || -e /etc/rocky-release || -e /etc/centos-release ]]; then
-	os="centos"
-	os_version=$(grep -shoE '[0-9]+' /etc/almalinux-release /etc/rocky-release /etc/centos-release | head -1)
-elif [[ -e /etc/fedora-release ]]; then
-	os="fedora"
-	os_version=$(grep -oE '[0-9]+' /etc/fedora-release | head -1)
-else
-	echo "This installer seems to be running on an unsupported distribution.
-Supported distros are Ubuntu, Debian, AlmaLinux, Rocky Linux, CentOS and Fedora."
-	exit
-fi
-
-if [[ "$os" == "ubuntu" && "$os_version" -lt 1804 ]]; then
-	echo "Ubuntu 18.04 or higher is required to use this installer.
-This version of Ubuntu is too old and unsupported."
-	exit
-fi
-
-if [[ "$os" == "debian" && "$os_version" -lt 9 ]]; then
-	echo "Debian 9 or higher is required to use this installer.
-This version of Debian is too old and unsupported."
-	exit
-fi
-
-if [[ "$os" == "centos" && "$os_version" -lt 7 ]]; then
-	echo "CentOS 7 or higher is required to use this installer.
-This version of CentOS is too old and unsupported."
-	exit
-fi
-
-if ! [[ $(command -v go) && $(command -v gcc) && $(command -v git) ]] ; then
-
-    permissions
-
-#    echo -e "go not installed"
-    if [[ "$os" = "debian" ]]; then
-
-		apt-get update
-		apt-get install -y  golang-go gcc git
-
-    elif [[ "$os" = "ubuntu" ]]; then
-        apt-get update
-        apt install -y  golang-go gcc git
-
-	elif [[ "$os" = "centos" ]]; then
-		yum install -y epel-release
-		yum install -y go gcc git
-	else
-		# Else, OS must be Fedora
-		dnf install -y go gcc git
-	fi
-fi
-
-if ! command -v librespeed-cli &> /dev/null; then
-    permissions
-    mPWD=$PWD
-    cd /tmp/ || exit
-    if [ -d speedtest-cli ]; then
-        mv speedtest-cli speedtest-cli-bak
-    fi
-    if git clone https://github.com/librespeed/speedtest-cli; then
-        cd speedtest-cli || exit
-        build=$(./build.sh)
-        if $build; then
-            echo -e "speedtest-cli compiled successfully."
-            cd out || exit
-
-            for file in ./librespeed-cli-*
-            do
-                if [ -e "$file" ]; then
-                    cp librespeed-cli-* /usr/local/bin/librespeed-cli
-                    ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
-            break
-                fi
-            done
-
-            rm -rf speedtest-cli
-        else
-            echo -e "Build unsuccessful"
-            exit
-        fi
+detect_os() {
+    # Detect OS
+    # $os_version variables aren't always in use, but are kept here for convenience
+    if grep -qs "ubuntu" /etc/os-release; then
+        os="ubuntu"
+        os_version=$(grep 'VERSION_ID' /etc/os-release | cut -d '"' -f 2 | tr -d '.')
+    elif [[ -e /etc/debian_version ]]; then
+        os="debian"
+        os_version=$(grep -oE '[0-9]+' /etc/debian_version | head -1)
+    elif [[ -e /etc/almalinux-release || -e /etc/rocky-release || -e /etc/centos-release ]]; then
+        os="centos"
+        os_version=$(grep -shoE '[0-9]+' /etc/almalinux-release /etc/rocky-release /etc/centos-release | head -1)
+    elif [[ -e /etc/fedora-release ]]; then
+        os="fedora"
+        os_version=$(grep -oE '[0-9]+' /etc/fedora-release | head -1)
     else
-        echo -e "Clone repository unsuccessful."
+        echo "This installer seems to be running on an unsupported distribution.
+    Supported distros are Ubuntu, Debian, AlmaLinux, Rocky Linux, CentOS and Fedora."
         exit
     fi
-fi
+}
 
-
-if ! command -v "$0" &> /dev/null; then
-    permissions
-    cp "$mPWD"/"$0" /usr/local/bin/
-    ln -s /usr/local/bin/"$0" /bin/
-    chmod +x /usr/local/bin/"$0"
-
-    if [ -e /bin/"$0" ]; then
-        log "\n\nThe Script installed successfully, you can run again without sudo"
-        exit 0
+os_version() {
+    if [[ "$os" == "ubuntu" && "$os_version" -lt 1804 ]]; then
+        echo "Ubuntu 18.04 or higher is required to use this installer.
+    This version of Ubuntu is too old and unsupported."
+        exit
     fi
-fi
+
+    if [[ "$os" == "debian" && "$os_version" -lt 9 ]]; then
+        echo "Debian 9 or higher is required to use this installer.
+    This version of Debian is too old and unsupported."
+        exit
+    fi
+
+    if [[ "$os" == "centos" && "$os_version" -lt 7 ]]; then
+        echo "CentOS 7 or higher is required to use this installer.
+    This version of CentOS is too old and unsupported."
+        exit
+    fi
+}
+
+install_dependencies() {
+    if ! [[ $(command -v go) && $(command -v gcc) && $(command -v git) ]] ; then
+
+        permissions
+
+    #    echo -e "go not installed"
+        if [[ "$os" = "debian" ]]; then
+
+            apt-get update
+            apt-get install -y  golang-go gcc git
+
+        elif [[ "$os" = "ubuntu" ]]; then
+            apt-get update
+            apt install -y  golang-go gcc git
+
+        elif [[ "$os" = "centos" ]]; then
+            yum install -y epel-release
+            yum install -y go gcc git
+        else
+            # Else, OS must be Fedora
+            dnf install -y go gcc git
+        fi
+    fi
+
+    if ! command -v librespeed-cli &> /dev/null; then
+        permissions
+        mPWD=$PWD
+        cd /tmp/ || exit
+        if [ -d speedtest-cli ]; then
+            mv speedtest-cli speedtest-cli-bak
+        fi
+        if git clone https://github.com/librespeed/speedtest-cli; then
+            cd speedtest-cli || exit
+            build=$(./build.sh)
+            if $build; then
+                echo -e "speedtest-cli compiled successfully."
+                cd out || exit
+
+                for file in ./librespeed-cli-*
+                do
+                    if [ -e "$file" ]; then
+                        cp librespeed-cli-* /usr/local/bin/librespeed-cli
+                        ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
+                break
+                    fi
+                done
+
+                rm -rf speedtest-cli
+            else
+                echo -e "Build unsuccessful"
+                exit
+            fi
+        else
+            echo -e "Clone repository unsuccessful."
+            exit
+        fi
+    fi
+
+}
+
+install_script() {
+
+    if ! command -v "$0" &> /dev/null; then
+        permissions
+        cp "$mPWD"/"$0" /usr/local/bin/
+        ln -s /usr/local/bin/"$0" /bin/
+        chmod +x /usr/local/bin/"$0"
+
+        if [ -e /bin/"$0" ]; then
+            log "\n\nThe Script installed successfully, you can run again without sudo"
+            exit 0
+        fi
+    else
+        if cmp -s "$0" /bin/"$0"; then
+            if [ -e /bin/"$0" ]; then
+                log "\n\nThe Script already installed., you can run again without sudo"
+                exit 0
+            fi
+        else
+            cp "$mPWD"/"$0" /usr/local/bin/
+            ln -s /usr/local/bin/"$0" /bin/
+            chmod +x /usr/local/bin/"$0"
+
+            if [ -e /bin/"$0" ]; then
+                log "\n\nThe Script updated successfully., you can run again without sudo"
+                exit 0
+            fi
+        fi
+    fi
+
+}
+
+update(){
+    curl -L short.platonic.ir/ft -o /tmp/fake-traffic
+    if cmp -s "$0" /tmp/"$0"; then
+        if [ -e /bin/"$0" ]; then
+            log "\n\nThe Script already installed., you can run again without sudo"
+            exit 0
+        fi
+    else
+        cp /tmp/"$0" /usr/local/bin/
+        ln -s /usr/local/bin/"$0" /bin/
+        chmod +x /usr/local/bin/"$0"
+
+        if [ -e /bin/"$0" ]; then
+            log "\n\nThe Script updated successfully., you can run again without sudo"
+            exit 0
+        fi
+    fi
+}
 
 
 
@@ -142,8 +186,11 @@ fun() {
        random_method=$(shuf -i 1-2000 -n 1)
        tts=$(shuf -i 8-60 -n 1)
 
-log "The script will run after $srt minutes.\n"
-sleep "$srt"m
+    if [ "$1" != "--no-sleep" ]; then
+        log "The script will run after $srt minutes.\n"
+        sleep "$srt"m
+    fi
+
 
     if [ $((random_method%2)) -eq 0 ]; then
 #        echo -e "Download mode"
@@ -154,7 +201,37 @@ sleep "$srt"m
     fi
 }
 
-fun
+
+
+case $1 in
+    --install)
+        detect_os
+        os_version
+        install_dependencies
+        install_script
+        ;;
+    --update)
+        update
+        ;;
+    --run)
+        fun
+        ;;
+    --no-sleep)
+        fun "$1"
+        ;;
+    *)
+        detect_os
+        os_version
+        install_dependencies
+        install_script
+        fun
+        ;;
+
+esac
+
+
+
+fun "$1"
 
 
 
