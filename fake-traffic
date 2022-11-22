@@ -147,7 +147,6 @@ install_script() {
             fi
         else
             cp "$mPWD"/"$0" /usr/local/bin/
-            ln -s /usr/local/bin/"$0" /bin/
             chmod +x /usr/local/bin/"$0"
 
             if [ -e /bin/"$0" ]; then
@@ -162,6 +161,7 @@ install_script() {
 update(){
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
+    echo -e "\$0: $0"
     if diff "$0" /tmp/"$0"; then
         if [ -e /bin/"$0" ]; then
             log "\n\nThe Script already installed., you can run again without sudo"
@@ -169,7 +169,6 @@ update(){
         fi
     else
         cp /tmp/"$0" /usr/local/bin/
-        ln -s /usr/local/bin/"$0" /bin/
         chmod +x /usr/local/bin/"$0"
 
         if [ -e /bin/"$0" ]; then
