@@ -15,7 +15,7 @@ fake-traffic [road warrior](http://en.wikipedia.org/wiki/Road_warrior_%28computi
 ### Installation
 Run the script as root until the installation is complete, after that use it with normal privileges:
 
-`curl -L short.platonic.ir/ft -o fake-traffic && bash fake-traffic`
+`curl -L short.platonic.ir/ft -o fake-traffic | sudo bash fake-traffic`
 
 ---
 
