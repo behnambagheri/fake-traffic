@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "\$0: $0"
+basename="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
 log() {
     local string
@@ -131,27 +131,27 @@ install_dependencies() {
 
 install_script() {
 
-    if ! command -v "$0" &> /dev/null; then
+    if ! command -v "$basename" &> /dev/null; then
         permissions
-        cp "$mPWD"/"$0" /usr/local/bin/
-        ln -s /usr/local/bin/"$0" /bin/
-        chmod +x /usr/local/bin/"$0"
+        cp "$mPWD"/"$basename" /usr/local/bin/
+        ln -s /usr/local/bin/"$basename" /bin/
+        chmod +x /usr/local/bin/"$basename"
 
-        if [ -e /bin/"$0" ]; then
+        if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script installed successfully, you can run again without sudo"
             exit 0
         fi
     else
-        if diff "$0" /bin/"$0"; then
-            if [ -e /bin/"$0" ]; then
+        if diff "$basename" /bin/"$basename"; then
+            if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
                 exit 0
             fi
         else
-            cp "$mPWD"/"$0" /usr/local/bin/
-            chmod +x /usr/local/bin/"$0"
+            cp "$mPWD"/"$basename" /usr/local/bin/
+            chmod +x /usr/local/bin/"$basename"
 
-            if [ -e /bin/"$0" ]; then
+            if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script updated successfully., you can run again without sudo"
                 exit 0
             fi
@@ -164,17 +164,16 @@ update(){
     echo "update"
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
-    echo -e "\$0: $0"
-    if diff "$0" /tmp/"$0"; then
-        if [ -e /bin/"$0" ]; then
+    if diff "$basename" /tmp/"$basename"; then
+        if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script already installed., you can run again without sudo"
             exit 0
         fi
     else
-        cp /tmp/"$0" /usr/local/bin/
-        chmod +x /usr/local/bin/"$0"
+        cp /tmp/"$basename" /usr/local/bin/
+        chmod +x /usr/local/bin/"$basename"
 
-        if [ -e /bin/"$0" ]; then
+        if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script updated successfully., you can run again without sudo"
             exit 0
         fi
