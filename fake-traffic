@@ -130,7 +130,7 @@ if ! command -v "$0" &> /dev/null; then
     chmod +x /usr/local/bin/"$0"
 
     if [ -e /bin/"$0" ]; then
-        log "\nThe Script installed successfully, you can run again without sudo"
+        log "\n\nThe Script installed successfully, you can run again without sudo"
         exit 0
     fi
 fi
