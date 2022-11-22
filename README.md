@@ -8,7 +8,7 @@ fake-traffic [road warrior](http://en.wikipedia.org/wiki/Road_warrior_%28computi
 
 ---
 ### Facilities
-**generating asymmetrical traffic data and prevention of bandwidth limitations and server filtering.**
+**Generating asymmetrical traffic data and prevention of bandwidth limitations and server filtering.**
 
 ---
 
