@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "\$0: $0"
+
 log() {
     local string
     TIME_STAMP=$(date "+%F-%H-%M-%S")
