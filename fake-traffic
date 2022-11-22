@@ -139,9 +139,8 @@ install_script() {
 
     if ! command -v "$basename" &> /dev/null; then
         permissions
-        echo "\$0: $0"
+
         cp "$mPWD"/"$0" /usr/local/bin/
-        echo "again3"
         ln -s /usr/local/bin/"$basename" /bin/
         chmod +x /usr/local/bin/"$basename"
 
