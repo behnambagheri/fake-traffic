@@ -127,6 +127,7 @@ if ! command -v "$0" &> /dev/null; then
     permissions
     cp "$mPWD"/"$0" /usr/local/bin/
     ln -s /usr/local/bin/"$0" /bin/
+    chmod +x /usr/local/bin/"$0"
 
     if [ -e /bin/"$0" ]; then
         log "\nThe Script installed successfully, you can run again without sudo"
