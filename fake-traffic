@@ -222,6 +222,7 @@ case $1 in
         fun "$1"
         ;;
     "")
+        echo "empty"
         detect_os
         os_version
         install_dependencies
