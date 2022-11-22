@@ -18,7 +18,7 @@ permissions() {
 
     if [[ "$EUID" -ne 0 ]]; then
         echo "This installer needs to be run with superuser privileges."
-        echo -e "you need to use sudo until the installation is complete."
+        echo -e "Run the script as root until the installation is complete, after that use it with normal privileges."
         exit
     fi
 }
@@ -129,7 +129,7 @@ if ! command -v "$0" &> /dev/null; then
     ln -s /usr/local/bin/"$0" /bin/
 
     if [ -e /bin/"$0" ]; then
-        log "The Script installed successfully, you can run again without sudo"
+        log "\nThe Script installed successfully, you can run again without sudo"
         exit 0
     fi
 fi
