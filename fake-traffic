@@ -140,7 +140,7 @@ install_script() {
         permissions
         echo "\$0: $0"
         cp "$0" /usr/local/bin/
-        echo "again"
+        echo "again2"
         ln -s /usr/local/bin/"$basename" /bin/
         chmod +x /usr/local/bin/"$basename"
 
