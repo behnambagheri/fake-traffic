@@ -159,6 +159,7 @@ install_script() {
 }
 
 update(){
+    echo "update"
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
     echo -e "\$0: $0"
@@ -195,9 +196,11 @@ fun() {
     if [ $((random_method%2)) -eq 0 ]; then
 #        echo -e "Download mode"
         librespeed-cli --no-upload --simple --no-icmp --duration "$tts"
+        exit 0
     else
 #        echo -e "Upload mode"
         librespeed-cli --no-download --simple --no-icmp --duration "$tts"
+        exit 0
     fi
 }
 
