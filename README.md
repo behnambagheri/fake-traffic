@@ -7,7 +7,7 @@ fake-traffic [road warrior](http://en.wikipedia.org/wiki/Road_warrior_%28computi
 **Script independently sends and receives requests completely similar to web requests, sometimes as uploads and sometimes as downloads in different time frames and with different durations by using the [libre-speedtest](https://github.com/librespeed/speedtest-cli) package.**
 
 ---
-### Facilities:
+### Facilities
 **generating asymmetrical traffic data and prevention of bandwidth limitations and server filtering.**
 
 ---
