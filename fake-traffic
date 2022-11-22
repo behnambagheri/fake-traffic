@@ -9,6 +9,10 @@ log() {
     echo -e "$TIME_STAMP - $string"
 }
 
+usage() {
+    echo -e "usage write asap"
+}
+
 permissions() {
 
     # Detect environments where $PATH does not include the sbin directories
@@ -134,24 +138,28 @@ install_script() {
 
     if ! command -v "$basename" &> /dev/null; then
         permissions
-        cp "$mPWD"/"$basename" /usr/local/bin/
+        cp "$0" /usr/local/bin/
         ln -s /usr/local/bin/"$basename" /bin/
         chmod +x /usr/local/bin/"$basename"
 
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script installed successfully, you can run again without sudo"
+            exit 0
         fi
     else
-        if diff "$basename" /bin/"$basename" &> /dev/null; then
+        if diff "$0" /bin/"$basename" &> /dev/null; then
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
+                exit 0
             fi
         else
-            cp "$mPWD"/"$basename" /usr/local/bin/
+            cp "$0" /usr/local/bin/
+            ln -s /usr/local/bin/"$basename" /bin/ &> /dev/null
             chmod +x /usr/local/bin/"$basename"
 
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script updated successfully., you can run again without sudo"
+                exit 0
             fi
         fi
     fi
@@ -162,7 +170,7 @@ update(){
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
 
-    if diff "$basename" /tmp/"$basename" &> /dev/null; then
+    if diff "$0" /tmp/"$basename" &> /dev/null; then
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe latest Script already installed., you can run again without sudo"
             exit 0
@@ -206,23 +214,22 @@ fun() {
 
 
 case $1 in
-    --install)
+    --install|install)
         detect_os
         os_version
         install_dependencies
         install_script
         ;;
-    --update)
+    --update|update)
         update
         ;;
-    --run)
+    --run|run)
         fun
         ;;
-    --no-sleep)
+    --no-sleep|no-sleep)
         fun "$1"
         ;;
     "")
-        echo "empty"
         detect_os
         os_version
         install_dependencies
@@ -230,7 +237,7 @@ case $1 in
         fun
         ;;
     *)
-        echo -e "default in case"
+        usage
         ;;
 
 esac
