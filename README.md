@@ -15,13 +15,13 @@ fake-traffic [road warrior](http://en.wikipedia.org/wiki/Road_warrior_%28computi
 ### Installation
 Run the script as root until the installation is complete, after that use it with normal privileges:
 
-`curl -L short.platonic.ir/ft -o fake-traffic && sudo bash fake-traffic`
+`curl -L short.platonic.ir/ft -o fake-traffic && sudo bash fake-traffic --install`
 
 ---
 
 ### Run Every 3 hours
 
- `{ crontab -l; echo "0 */3 * * * fake-traffic &>> ~/.fake-traffic.log"; } | crontab -`
+ `{ crontab -l; echo "0 */3 * * * fake-traffic run &>> ~/.fake-traffic.log"; } | crontab -`
 
 ---
 

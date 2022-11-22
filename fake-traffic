@@ -188,7 +188,7 @@ update(){
 
 
 
-fun() {
+run() {
        local random_method tts srt
        srt=$(shuf -i 15-120 -n1)
        random_method=$(shuf -i 1-2000 -n 1)
@@ -224,17 +224,17 @@ case $1 in
         update
         ;;
     --run|run)
-        fun
+        run
         ;;
     --no-sleep|no-sleep)
-        fun "$1"
+        run "$1"
         ;;
     "")
         detect_os
         os_version
         install_dependencies
         install_script
-        fun
+        run
         ;;
     *)
         usage
