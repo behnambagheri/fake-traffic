@@ -146,7 +146,6 @@ install_script() {
         if diff "$basename" /bin/"$basename"; then
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script already installed., you can run again without sudo"
-                exit 0
             fi
         else
             cp "$mPWD"/"$basename" /usr/local/bin/
@@ -154,7 +153,6 @@ install_script() {
 
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script updated successfully., you can run again without sudo"
-                exit 0
             fi
         fi
     fi
