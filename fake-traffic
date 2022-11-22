@@ -161,7 +161,6 @@ install_script() {
 }
 
 update(){
-    echo "update"
     permissions
     curl -L short.platonic.ir/ft -o /tmp/fake-traffic
     if diff "$basename" /tmp/"$basename"; then
