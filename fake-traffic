@@ -84,18 +84,18 @@ install_dependencies() {
         if [[ "$os" = "debian" ]]; then
 
             apt-get update
-            apt-get install -y  golang-go gcc git
+            apt-get install -y  golang-go gcc git vnstat jq
 
         elif [[ "$os" = "ubuntu" ]]; then
             apt-get update
-            apt install -y  golang-go gcc git
+            apt install -y  golang-go gcc git vnstat jq
 
         elif [[ "$os" = "centos" ]]; then
             yum install -y epel-release
-            yum install -y go gcc git
+            yum install -y go gcc git vnstat jq
         else
             # Else, OS must be Fedora
-            dnf install -y go gcc git
+            dnf install -y go gcc git vnstat jq
         fi
     fi
 
@@ -293,7 +293,7 @@ case $1 in
         run
         ;;
     --9to1|9to1)
-        run_base_stats "$1"
+        run_base_stats #"$1"
         ;;
     --no-sleep|no-sleep)
         run "$1"
