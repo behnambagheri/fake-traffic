@@ -208,6 +208,75 @@ run() {
     fi
 }
 
+stats () {
+    local rx_in_bytes rx_in_megabytes rx_in_gigabytes \
+    tx_in_bytes tx_in_megabytes tx_in_gigabytes \
+    tx9_rx1
+    for i in $(vnstat --json | jq '.interfaces[].traffic.total.rx'); do
+
+        if [ -z "$rx_in_bytes" ]; then
+            rx_in_bytes=0
+        fi
+        rx_in_bytes=$(("$i" + "$rx_in_bytes"))
+    done
+    echo -e "RX in Bytes is: $rx_in_bytes"' B'
+    rx_in_megabytes=$((rx_in_bytes / 1024 / 1024))
+    echo -e "RX in MegaBytes is: $rx_in_megabytes"' MB'
+
+    rx_in_gigabytes=$((rx_in_bytes / 1024 / 1024 / 1024))
+    echo -e "RX in GigaBytes is: $rx_in_gigabytes"' GB'
+
+    for i in $(vnstat --json | jq '.interfaces[].traffic.total.tx'); do
+
+        if [ -z "$tx_in_bytes" ]; then
+            tx_in_bytes=0
+        fi
+        tx_in_bytes=$(("$i" + "$tx_in_bytes"))
+    done
+    echo -e "TX in Bytes is: $tx_in_bytes"' B'
+    tx_in_megabytes=$((tx_in_bytes / 1024 / 1024))
+    echo -e "TX in MegaBytes is: $tx_in_megabytes"' MB'
+
+    tx_in_gigabytes=$((tx_in_bytes / 1024 / 1024 / 1024))
+    echo -e "TX in GigaBytes is: $tx_in_gigabytes"' GB'
+
+    tx9_rx1=$((tx_in_bytes / rx_in_bytes))
+    echo -e "tx9_rx1: $tx9_rx1"
+
+    result=$tx9_rx1
+
+
+}
+
+
+run_base_stats() {
+
+       stats
+
+       local random_method tts srt
+       srt=$(shuf -i 15-120 -n1)
+       random_method=$(shuf -i 1-2000 -n 1)
+       tts=$(shuf -i 8-60 -n 1)
+
+#    if [ "$1" != "--no-sleep" ]; then
+#        log "The script will run after $srt minutes.\n"
+#        sleep "$srt"m
+#    fi
+
+
+    if [[ "$result" -gt 9 ]]; then
+#        echo -e "Download mode"
+        librespeed-cli --no-upload --simple --no-icmp --duration "$tts"
+    fi
+    if [[ "$result" -lt 9 ]]; then
+        #        echo -e "Upload mode"
+        librespeed-cli --no-download --simple --no-icmp --duration "$tts"
+    fi
+    if [[ "$result" -eq 9 ]]; then
+        echo -e "traffic is good."
+    fi
+
+}
 
 
 case $1 in
@@ -222,6 +291,9 @@ case $1 in
         ;;
     --run|run)
         run
+        ;;
+    --9to1|9to1)
+        run_base_stats "$1"
         ;;
     --no-sleep|no-sleep)
         run "$1"
