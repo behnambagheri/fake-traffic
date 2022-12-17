@@ -77,7 +77,7 @@ os_version() {
 
 install_dependencies() {
     local dependencies
-    dependencies=(go gcc git vnstat jq)
+    dependencies=(go gcc git vnstat jq tar wget)
     for i in "${dependencies[@]}";
     do
 
@@ -105,37 +105,40 @@ install_dependencies() {
         fi
     done
 
+    if command -v vnstat &> /dev/null; then
+        systemctl enable --now vnstat
+    fi
+
     if ! command -v librespeed-cli &> /dev/null; then
         permissions
         cd /tmp/ || exit
-        if [ -d speedtest-cli ]; then
-            mv speedtest-cli speedtest-cli-bak
-        fi
-        local build
-        if git clone https://github.com/librespeed/speedtest-cli; then
-            cd speedtest-cli || exit
-            build=$(./build.sh)
-            if $build; then
-                echo -e "speedtest-cli compiled successfully."
-                cd out || exit
 
-                for file in ./librespeed-cli-*
-                do
-                    if [ -e "$file" ]; then
-                        cp librespeed-cli-* /usr/local/bin/librespeed-cli
-                        ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
-                break
-                    fi
-                done
+        local architecture
+        architecture=""
+        case $(lscpu | awk '/Architecture:/{print $2}') in
+            i386)   architecture="386" ;;
+            i686)   architecture="386" ;;
+            x86_64) architecture="amd64" ;;
+            arm)    architecture="arm64" ;;
+        esac
 
-                rm -rf speedtest-cli
-            else
-                echo -e "Build unsuccessful"
-                exit
-            fi
+        echo -e "System architecture is: $architecture"
+
+        curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
+                  jq -r ".assets[] | select(.name | contains(\"$(uname -s \
+                  | awk '{print tolower($0)}')\")) | .browser_download_url" | \
+                  grep $architecture | \
+                  wget -i - -O librespeed-cli.tar.gz
+
+        if [ -e librespeed-cli.tar.gz ]; then
+            tar xzvf librespeed-cli.tar.gz
+            cp librespeed-cli /usr/local/bin/librespeed-cli
+            ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
+            echo -e "speedtest-cli installed successfully."
         else
-            echo -e "Clone repository unsuccessful."
-            exit
+            echo -e "librespeed-cli install unsuccessful, you should install it manually."
+            echo -e "Follow the instruction on https://github.com/librespeed/speedtest-cli "
+            exit 1
         fi
     fi
 
@@ -218,6 +221,7 @@ stats () {
     local rx_in_bytes rx_in_megabytes rx_in_gigabytes \
     tx_in_bytes tx_in_megabytes tx_in_gigabytes \
     tx9_rx1
+    systemctl reload vnstat
     for i in $(vnstat --json | jq '.interfaces[].traffic.total.rx'); do
 
         if [ -z "$rx_in_bytes" ]; then
@@ -257,18 +261,20 @@ stats () {
 
 run_base_stats() {
 
-       stats
+    stats
 
-       local tts
-       tts=$(shuf -i 44-280 -n 1)
+    local tts
+    tts=$(shuf -i 44-280 -n 1)
 
 
     if [[ "$result" -gt 9 ]]; then
 #        echo -e "Download mode"
+        echo -e "Run speedtest in download mode with tts: $tts "
         librespeed-cli --no-upload --simple --no-icmp --duration "$tts"
     fi
     if [[ "$result" -lt 9 ]]; then
         #        echo -e "Upload mode"
+        echo -e "Run speedtest in upload mode with tts: $tts "
         librespeed-cli --no-download --simple --no-icmp --duration "$tts"
     fi
     if [[ "$result" -eq 9 ]]; then
@@ -293,6 +299,9 @@ case $1 in
         ;;
     --9to1|9to1)
         run_base_stats #"$1"
+        ;;
+    --stats|stats)
+        stats
         ;;
     --no-sleep|no-sleep)
         run "$1"

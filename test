@@ -1,9 +1,18 @@
 #!/bin/bash
 
-dependencies=(git vim go)
+architecture=""
+case $(lscpu | awk '/Architecture:/{print $2}') in
+    i386)   architecture="386" ;;
+    i686)   architecture="386" ;;
+    x86_64) architecture="amd64" ;;
+    arm)    architecture="arm64" ;;
+esac
 
- for i in "${dependencies[@]}";
- do
-     echo $i
-     sleep 1
-     done
+echo $architecture
+
+        curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
+                  jq -r ".assets[] | select(.name | contains(\"$(uname -s \
+                  | awk '{print tolower($0)}')\")) | .browser_download_url" | \
+                  grep $architecture | \
+                  wget -i - -O librespeed-cli.tar.gz | \
+                  tar xzvf librespeed-cli.tar.gz
