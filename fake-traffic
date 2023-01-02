@@ -82,7 +82,7 @@ install_dependencies() {
     do
 
         if ! [[ $(command -v "$i") ]] ; then
-
+            echo -e "Install PKG: $i"
             permissions
 
         #    echo -e "go not installed"
@@ -113,7 +113,23 @@ install_dependencies() {
         permissions
         cd /tmp/ || exit
 
-        local architecture
+        install(){
+            if [ -e librespeed-cli.tar.gz ]; then
+#                echo injaha
+                tar xzvf librespeed-cli.tar.gz
+                cp librespeed-cli /usr/local/bin/librespeed-cli
+                ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
+                echo -e "speedtest-cli installed successfully."
+            else
+                echo -e "librespeed-cli install unsuccessful, you should install it manually."
+                echo -e "Follow the instruction on https://github.com/librespeed/speedtest-cli "
+                exit 1
+            fi
+            }
+
+
+
+        local architecture github_url release_on_ir_server url_prefix ir_url github_release ir_server_file
         architecture=""
         case $(lscpu | awk '/Architecture:/{print $2}') in
             i386)   architecture="386" ;;
@@ -124,17 +140,32 @@ install_dependencies() {
 
         echo -e "System architecture is: $architecture"
 
-        curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
-                  jq -r ".assets[] | select(.name | contains(\"$(uname -s \
-                  | awk '{print tolower($0)}')\")) | .browser_download_url" | \
-                  grep $architecture | \
-                  wget -i - -O librespeed-cli.tar.gz
+        github_url=$(curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
+          jq -r ".assets[] | select(.name | contains(\"$(uname -s \
+          | awk '{print tolower($0)}')\")) | .browser_download_url" | \
+          grep $architecture)
 
-        if [ -e librespeed-cli.tar.gz ]; then
-            tar xzvf librespeed-cli.tar.gz
-            cp librespeed-cli /usr/local/bin/librespeed-cli
-            ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
-            echo -e "speedtest-cli installed successfully."
+        release_on_ir_server=$(curl https://drive.platonic.ir/git-releases/librespeed-cli/ | cut -d'"' -f2 | grep -i "$(uname -s)" | grep $architecture)
+#        echo "release_on_ir_server: $release_on_ir_server"
+        url_prefix='https://drive.platonic.ir/git-releases/librespeed-cli/'
+        ir_url="$url_prefix""$release_on_ir_server"
+#        echo "irurl: $ir_url"
+        github_release=$(curl -s "$github_url" -o librespeed-cli-github.tar.gz)
+        ir_server_file=$(curl -s "$ir_url" -o librespeed-cli-irserver.tar.gz)
+        if [ -e librespeed-cli-github.tar.gz ] && ! [ -e librespeed-cli-irserver.tar.gz ]; then
+#            echo inja
+            mv librespeed-cli-github.tar.gz librespeed-cli.tar.gz
+            install
+
+        elif [ -e librespeed-cli-github.tar.gz ] && [ -e librespeed-cli-irserver.tar.gz ]; then
+#            echo unja
+            mv librespeed-cli-github.tar.gz librespeed-cli.tar.gz
+            install
+        elif ! [ -e librespeed-cli-github.tar.gz ] && [ -e librespeed-cli-irserver.tar.gz ]; then
+#            echo unjaha
+#            file *.gz
+            mv librespeed-cli-irserver.tar.gz librespeed-cli.tar.gz
+            install
         else
             echo -e "librespeed-cli install unsuccessful, you should install it manually."
             echo -e "Follow the instruction on https://github.com/librespeed/speedtest-cli "

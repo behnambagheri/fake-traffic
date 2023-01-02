@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+
+        architecture=""
+        case $(lscpu | awk '/Architecture:/{print $2}') in
+            i386)   architecture="386" ;;
+            i686)   architecture="386" ;;
+            x86_64) architecture="amd64" ;;
+            arm)    architecture="arm64" ;;
+        esac
+
+        echo -e "System architecture is: $architecture"
+
+#        url=$(curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
+#                  jq -r ".assets[] | select(.name | contains(\"$(uname -s \
+#                  | awk '{print tolower($0)}')\")) | .browser_download_url" | \
+#                  grep $architecture)
+#        curl "$url" -o librespeed-cli.tar.gz
+
+url_name=$(curl https://drive.platonic.ir/git-releases/librespeed-cli/ | cut -d'"' -f2 | grep -i "$(uname -s)" | grep $architecture)
+echo "urlname:$url_name"
+url_prefix='https://drive.platonic.ir/git-releases/librespeed-cli/'
+url="$url_prefix""$url_name"
+echo "$url"
+curl "$url" -o librespeed-cli.tar.gz
