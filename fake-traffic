@@ -114,9 +114,8 @@ install_dependencies() {
         cd /tmp/ || exit
 
         install(){
-            if [ -e librespeed-cli.tar.gz ]; then
-#                echo injaha
-                tar xzvf librespeed-cli.tar.gz
+            if tar tf librespeed-cli.tar.gz &> /dev/null; then
+                tar xzvf librespeed-cli.tar.gz &> /dev/null
                 cp librespeed-cli /usr/local/bin/librespeed-cli
                 ln -s /usr/local/bin/librespeed-cli /bin/librespeed-cli
                 echo -e "speedtest-cli installed successfully."
@@ -129,7 +128,8 @@ install_dependencies() {
 
 
 
-        local architecture github_url release_on_ir_server url_prefix ir_url github_release ir_server_file
+        local architecture github_url release_on_ir_server url_prefix ir_url github_release ir_server_file uname
+        uname=$(uname -s)
         architecture=""
         case $(lscpu | awk '/Architecture:/{print $2}') in
             i386)   architecture="386" ;;
@@ -140,31 +140,25 @@ install_dependencies() {
 
         echo -e "System architecture is: $architecture"
 
-        github_url=$(curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest | \
-          jq -r ".assets[] | select(.name | contains(\"$(uname -s \
-          | awk '{print tolower($0)}')\")) | .browser_download_url" | \
-          grep $architecture)
+        github_release=$(curl -s https://api.github.com/repos/librespeed/speedtest-cli/releases/latest \
+            | grep "browser_download_url" \
+            | cut -d : -f 2,3 \
+            | tr -d \" \
+            | grep $architecture \
+            | grep -i "$uname" \
+            | wget -O librespeed-cli.tar.gz -qi -)
 
-        release_on_ir_server=$(curl https://drive.platonic.ir/git-releases/librespeed-cli/ | cut -d'"' -f2 | grep -i "$(uname -s)" | grep $architecture)
-#        echo "release_on_ir_server: $release_on_ir_server"
-        url_prefix='https://drive.platonic.ir/git-releases/librespeed-cli/'
-        ir_url="$url_prefix""$release_on_ir_server"
-#        echo "irurl: $ir_url"
-        github_release=$(curl -s "$github_url" -o librespeed-cli-github.tar.gz)
-        ir_server_file=$(curl -s "$ir_url" -o librespeed-cli-irserver.tar.gz)
-        if [ -e librespeed-cli-github.tar.gz ] && ! [ -e librespeed-cli-irserver.tar.gz ]; then
-#            echo inja
-            mv librespeed-cli-github.tar.gz librespeed-cli.tar.gz
-            install
+        if ! [ -e librespeed-cli.tar.gz ]; then
+            release_on_ir_server=$(curl -s https://drive.bea.sh/git-releases/librespeed-cli/ | cut -d'"' -f2 | grep -i "$(uname -s)" | grep $architecture)
+    #        echo "release_on_ir_server: $release_on_ir_server"
+            url_prefix='https://drive.bea.sh/git-releases/librespeed-cli/'
+            ir_url="$url_prefix""$release_on_ir_server"
+    #        github_release=$(curl -s "$github_url" -o librespeed-cli-github.tar.gz)
+            ir_server_file=$(curl -s "$ir_url" -o librespeed-cli.tar.gz)
+        fi
 
-        elif [ -e librespeed-cli-github.tar.gz ] && [ -e librespeed-cli-irserver.tar.gz ]; then
-#            echo unja
-            mv librespeed-cli-github.tar.gz librespeed-cli.tar.gz
-            install
-        elif ! [ -e librespeed-cli-github.tar.gz ] && [ -e librespeed-cli-irserver.tar.gz ]; then
-#            echo unjaha
-#            file *.gz
-            mv librespeed-cli-irserver.tar.gz librespeed-cli.tar.gz
+
+        if [ -e librespeed-cli.tar.gz ]; then
             install
         else
             echo -e "librespeed-cli install unsuccessful, you should install it manually."
@@ -249,6 +243,7 @@ run() {
 }
 
 stats () {
+    permissions
     local rx_in_bytes rx_in_megabytes rx_in_gigabytes \
     tx_in_bytes tx_in_megabytes tx_in_gigabytes \
     tx9_rx1
@@ -258,7 +253,7 @@ stats () {
         if [ -z "$rx_in_bytes" ]; then
             rx_in_bytes=0
         fi
-        rx_in_bytes=$(("$i" + "$rx_in_bytes"))
+        rx_in_bytes=$((i + rx_in_bytes))
     done
     echo -e "RX in Bytes is: $rx_in_bytes"' B'
     rx_in_megabytes=$((rx_in_bytes / 1024 / 1024))
@@ -272,7 +267,7 @@ stats () {
         if [ -z "$tx_in_bytes" ]; then
             tx_in_bytes=0
         fi
-        tx_in_bytes=$(("$i" + "$tx_in_bytes"))
+        tx_in_bytes=$((i + tx_in_bytes))
     done
     echo -e "TX in Bytes is: $tx_in_bytes"' B'
     tx_in_megabytes=$((tx_in_bytes / 1024 / 1024))
@@ -328,7 +323,7 @@ case $1 in
     --run|run)
         run
         ;;
-    --9to1|9to1)
+    --10to1|10to1)
         run_base_stats #"$1"
         ;;
     --stats|stats)
