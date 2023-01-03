@@ -128,6 +128,8 @@ install_dependencies() {
 
 
 
+
+
         local architecture github_url release_on_ir_server url_prefix ir_url github_release ir_server_file uname
         uname=$(uname -s)
         architecture=""
@@ -171,6 +173,12 @@ install_dependencies() {
 
 install_script() {
 
+    log_directory(){
+        mkdir /var/log/fake-traffic &> /dev/null
+        chmod -R 777 /var/log/fake-traffic
+        echo -e "Log Directory created."
+    }
+
     if ! command -v "$basename" &> /dev/null; then
         permissions
 
@@ -180,6 +188,7 @@ install_script() {
 
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script installed successfully, you can run again without sudo"
+            log_directory
         fi
     else
         if diff "$0" /bin/"$basename" &> /dev/null; then
@@ -195,6 +204,7 @@ install_script() {
 
             if [ -e /bin/"$basename" ]; then
                 log "\n\nThe Script updated successfully., you can run again without sudo"
+                log_directory
             fi
         fi
     fi

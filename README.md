@@ -21,11 +21,12 @@ Run the script as root until the installation is complete, after that use it wit
 
 ### Run Every 3 hours to generate asymmetrical traffic 
 
- `{ crontab -l; echo "0 */3 * * * bash -c 'fake-traffic run &>> ~/.fake-traffic.log'"; } | crontab -`
+ `{ crontab -l; echo "0 */3 * * * bash -c 'fake-traffic run &>> /var/log/fake-traffic/fake-traffic.log'"; } | crontab -`
 
  **_OR_** Run Every 30Minutes to create a ratio of ten to one traffic based on your consumption
 
- `{ sudo crontab -l; echo "*/30 * * * * bash -c 'fake-traffic 10to1 &>> ~/.fake-traffic.log'"; } | sudo crontab -`
+
+ `{ sudo crontab -l; echo "*/30 * * * * bash -c 'fake-traffic 9to1 &>> /var/log/fake-traffic/fake-traffic.log'"; } | sudo crontab -`
 
 ---
 
