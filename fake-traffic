@@ -75,6 +75,15 @@ os_version() {
     fi
 }
 
+log_directory(){
+    if ! [ -d /var/log/fake-traffic ]; then
+        mkdir /var/log/fake-traffic &> /dev/null
+        chmod -R 777 /var/log/fake-traffic
+        echo -e "Log Directory created."
+
+    fi
+}
+
 install_dependencies() {
     local dependencies
     dependencies=(vnstat jq tar wget)
@@ -173,12 +182,6 @@ install_dependencies() {
 
 install_script() {
 
-    log_directory(){
-        mkdir /var/log/fake-traffic &> /dev/null
-        chmod -R 777 /var/log/fake-traffic
-        echo -e "Log Directory created."
-    }
-
     if ! command -v "$basename" &> /dev/null; then
         permissions
 
@@ -195,6 +198,7 @@ install_script() {
             if [ -e /bin/"$basename" ]; then
 #                log "\n\nThe Script already installed., you can run again without sudo"
                 echo "silence is gild" &> /dev/null
+                log_directory
             fi
 
         else
@@ -218,6 +222,7 @@ update(){
     if diff "$0" /tmp/"$basename" &> /dev/null; then
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe latest Script already installed., you can run again without sudo"
+            log_directory
             exit 0
         fi
     else
@@ -226,6 +231,7 @@ update(){
 
         if [ -e /bin/"$basename" ]; then
             log "\n\nThe Script updated successfully., you can run again without sudo"
+            log_directory
             exit 0
         fi
     fi
