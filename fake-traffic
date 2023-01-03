@@ -324,6 +324,10 @@ case $1 in
         run
         ;;
     --10to1|10to1)
+        detect_os
+        os_version
+        install_dependencies
+        install_script
         run_base_stats #"$1"
         ;;
     --stats|stats)
