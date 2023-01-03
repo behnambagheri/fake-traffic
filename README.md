@@ -32,4 +32,4 @@ Run the script as root until the installation is complete, after that use it wit
 
 ### Logs can also be checked from this path:
 
-`cat ~/.fake-traffic.log`
+`less /var/log/fake-traffic/fake-traffic.log`
