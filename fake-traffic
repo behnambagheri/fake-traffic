@@ -184,8 +184,10 @@ install_script() {
     else
         if diff "$0" /bin/"$basename" &> /dev/null; then
             if [ -e /bin/"$basename" ]; then
-                log "\n\nThe Script already installed., you can run again without sudo"
+#                log "\n\nThe Script already installed., you can run again without sudo"
+                echo "silence is gild" &> /dev/null
             fi
+
         else
             cp "$0" /usr/local/bin/
             ln -s /usr/local/bin/"$basename" /bin/ &> /dev/null
@@ -246,7 +248,7 @@ stats () {
     permissions
     local rx_in_bytes rx_in_megabytes rx_in_gigabytes \
     tx_in_bytes tx_in_megabytes tx_in_gigabytes \
-    tx9_rx1
+    tx10_rx1
     systemctl reload vnstat
     for i in $(vnstat --json | jq '.interfaces[].traffic.total.rx'); do
 
@@ -276,10 +278,10 @@ stats () {
     tx_in_gigabytes=$((tx_in_bytes / 1024 / 1024 / 1024))
     echo -e "TX in GigaBytes is: $tx_in_gigabytes"' GB'
 
-    tx9_rx1=$((tx_in_bytes / rx_in_bytes))
-    echo -e "tx9_rx1: $tx9_rx1"
+    tx10_rx1=$((tx_in_bytes / rx_in_bytes))
+    echo -e "tx10_rx1: $tx10_rx1"
 
-    result=$tx9_rx1
+    result=$tx10_rx1
 
 
 }
@@ -293,17 +295,17 @@ run_base_stats() {
     tts=$(shuf -i 44-280 -n 1)
 
 
-    if [[ "$result" -gt 9 ]]; then
+    if [[ "$result" -gt 10 ]]; then
 #        echo -e "Download mode"
         echo -e "Run speedtest in download mode with tts: $tts "
         librespeed-cli --no-upload --simple --no-icmp --duration "$tts"
     fi
-    if [[ "$result" -lt 9 ]]; then
+    if [[ "$result" -lt 10 ]]; then
         #        echo -e "Upload mode"
         echo -e "Run speedtest in upload mode with tts: $tts "
         librespeed-cli --no-download --simple --no-icmp --duration "$tts"
     fi
-    if [[ "$result" -eq 9 ]]; then
+    if [[ "$result" -eq 10 ]]; then
         echo -e "traffic is good."
     fi
 
