@@ -26,7 +26,7 @@ Run the script as root until the installation is complete, after that use it wit
  **_OR_** Run Every 30Minutes to create a ratio of ten to one traffic based on your consumption
 
 
- `{ sudo crontab -l; echo "*/30 * * * * bash -c 'fake-traffic 9to1 &>> /var/log/fake-traffic/fake-traffic.log'"; } | sudo crontab -`
+ `{ sudo crontab -l; echo "*/30 * * * * bash -c 'fake-traffic 10to1 &>> /var/log/fake-traffic/fake-traffic.log'"; } | sudo crontab -`
 
 ---
 
